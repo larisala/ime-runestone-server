@@ -1,0 +1,165 @@
+{{extend 'layout.html'}}
+
+{{include '_sphinx_static_files.html'}}
+
+<div class="hidden-content" style="display: none">
+    \( {{= request.latex_preamble}} \)
+ </div>
+
+<div id='part1'>
+    <h1 style='text-align:center'>{{=assignment['name']}}</h1>
+    <h2 style='margin-left:1cm;'>Due: {{=assignment['duedate']}}</h2>
+    <span style="float:right; margin-right:1cm;">
+        {{if assignment['points'] > 0:}}
+            {{='Score: {} of {} = {:2.1f}%'.format(questions_score + readings_score, assignment['points'], 100*(questions_score + readings_score)/assignment['points'])}}
+        {{else:}}
+            This assignment is ungraded
+        {{pass}}
+    </span>
+    <div style='background-color:powderblue; margin-left:2cm; margin-right:2cm;'>
+        <p style='margin-left:0.5cm; margin-right:0.5cm;'>{{=T("Description:")}} {{=assignment['description']}}</p>
+    </div>
+
+    {{if len(readings) > 0:}}
+        <div id='readings' style='margin-left:15%;'>
+            <h3>{{=T("Readings")}}</h3>
+            <ul>
+                {{for reading in readings:}}
+                    <li class="{{=readings[reading]['status']}}">{{=reading}}</li>
+                    <ul>
+                    {{for r in readings[reading]['subchapters']:}}
+                        {{ if origin == "Runestone": }}
+                        <li class="{{=r['status']}}"><a href="{{=get_course_url(r['chapter'], r['subchapter'] + '.html')}}">{{=r['subchapter_name']}}</a>
+                        {{ else: }}
+                        <li class="{{=r['status']}}"><a href="{{=get_course_url('', r['subchapter'] + '.html')}}">{{=r['subchapter_name']}}</a>
+                        {{ pass }}
+                        {{if r['points'] > 0:}}
+                            {{if r['comment'] != 'ungraded':}}
+                                </br>{{=r['score']}} of {{=r['points']}} points earned; minimum {{=r['activities_required']}} activities required
+                            {{else:}}
+                                </br>not graded yet: {{=r['points']}} points; minimum {{=r['activities_required']}} activities required
+                            {{pass}}
+                        {{pass}}
+                    </li>
+
+                    {{pass}}
+                    </ul>
+                {{pass}}
+            </ul>
+        </div>
+    {{pass}}
+
+    {{if len(questioninfo) > 0:}}
+        <div id='questions'>
+            <style>
+                .ac_section > * {
+                    max-width: 100%;
+                }
+            </style>
+            <h3>{{=T("Questions")}}</h3>
+                {{ if assignment.is_timed: }}
+                    <ul data-component="timedAssessment"  id="{{= assignment.name}}"
+                    {{ if assignment.time_limit: }}
+                        data-time="{{=assignment.time_limit}}"
+                    {{pass}}
+                    {{ if assignment.nofeedback: }}
+                        data-no-feedback
+                    {{pass}}
+                    {{ if assignment.nopause: }}
+                        data-no-pause
+                    {{pass}}
+                    style="display: none;"
+                    >
+                    {{for q in questioninfo:}}
+                        {{=XML(q['htmlsrc'])}}
+                    {{pass}}
+                    </ul>
+                {{else:}}
+                    {{count=0}}
+                    {{for q in questioninfo:}}
+                            {{ if q['comment'] != 'ungraded':}}
+                                <div style='float:right; width:30%;'>
+                                <h4 style='text-align:center;'>Score: {{=q['score']}} / {{=q['points']}}</h4>
+                                <p style='margin-left:2%;'>Comment: {{=q['comment']}}</p>
+                                </div>
+                            {{ else: }}
+                                <div style='float:right; width:10%;'>
+                                <h5 style='text-align:center;'>{{=T("Not yet graded")}}</h5>
+                                </div>
+                            {{pass}}
+                            <div class='oneq full-width' id='{{=count}}'>
+                                <script class='htmlblock' type='text/html'>{{=q['htmlsrc']}}</script>
+                            </div>
+                            <div class="oneq" style="width: 100%; text-align: center">
+                                {{ if origin == "Runestone": }}
+                                <a href="/runestone/books/published/{{=course.base_course}}/{{=q['chapter']}}/{{=q['subchapter']}}.html#{{=q['name']}}">{{=T("Question in Context")}}</a>
+                                {{ else: }}
+                                <a href="/runestone/books/published/{{=course.base_course}}/{{=q['subchapter']}}.html#{{=q['name']}}">{{=T("Question in Context")}}</a>
+                                {{ pass }}
+                            </div>
+                            <hr>
+                        {{count += 1}}
+                    {{pass}}
+                {{pass}}
+
+        </div>
+    {{pass}}
+</div>
+
+{{ if not released and not assignment.is_timed: }}
+<div style="text-align:center">
+    <button class="btn btn-lg buttonAskCompletion" id="gradeMeButton">{{=T("Score Me")}}</button>
+    <p><strong>Warning:</strong> Scores for problems that you self grade are unofficial.
+        Some problems will need to be manually graded, and your instructor may have requirements that cannot be autograded.
+        No deadlines are enforced when self grading, but your instructor may penalize you
+        for late work.</p>
+</div>
+{{ elif settings.coursera_mode: }}
+<div style="text-align:center">
+    <button class="btn btn-lg buttonAskCompletion" id="gradeMeButton">{{=T("Score Me")}}</button>
+</div>
+{{ pass }}
+</div>
+<script>
+    //console.log(document.getElementsByClassName('nav nav-tabs'))
+    // This script renders the html into elements in the DOM
+    // The html gets thrown into a script tag so javascript can mess with it without throwing errors all over the place
+
+
+    var questionHtmlCode = document.getElementsByClassName("htmlblock");
+    // Interestingly, javascript won't understand the html string without first dumping it into an html element
+    // a console.log of the html string within the questioninfo array would only give an unexpected token error
+    // pulling the html strings from the script element provides the string that javascript recognizes
+    // even after stringifying the json.dumps version of a dictionary with the html as a value and then parsing the result, the html string was still seen as an undefined type according to javascript
+
+    // The htmlDecode is needed to unescape the html that the server has sent.
+    // because only unescaped html gets rendered as html elements
+
+    function htmlDecode(input){
+          let e = document.createElement('div');
+          e.innerHTML = input;
+          return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+
+
+
+    for (let i=0; i<questionHtmlCode.length; i++) {
+        let $div = $('#' + i);
+        let unescapedhtml = htmlDecode(questionHtmlCode[i].innerHTML);
+        let change = $.parseHTML(unescapedhtml, keepScripts=true);
+        $div.append(change);
+    }
+
+
+    $("#gradeMeButton").on("click", function(){
+        $('#gradeMeButton').css('visibility', 'hidden');
+        selfGrade({{=assignment['id']}}, '{{=student_id}}')});
+
+
+
+
+</script>
+<script src="/runestone/static/js/selfgrade.js" type="text/javascript"></script>
+
+

@@ -1,0 +1,30 @@
+{{extend 'admin/instructors.html'}}
+{{ block tabcontent }}
+
+
+<link rel="stylesheet" type="text/css" href="{{=URL('static', 'dashboard.css')}}"/>
+
+
+<div id="dashboard">
+    <h1>{{=course.course_name}}</h1>
+    <h2>{{=T("Active Students")}}</h2>
+    <p>{{=T("This page shows students who have loaded a page in the last 15 minutes. Refresh the page to update.")}}</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{=T("Student")}}</th>
+                <th>{{=T("Time")}}</th>
+                <th>{{=T("Last Page Loaded")}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{for row in activestudents: }}
+                <tr>
+                    <td>{{=row['sid']}}</td>
+                    <td>{{=row['timestamp']}}</td>
+                    <td>{{=row['div_id']}}</td>
+                </tr>
+            {{pass}}
+        </tbody>
+    </table>
+{{end}}

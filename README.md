@@ -1,6 +1,6 @@
 # Runestone Server for IME-USP
 
-This code contains the modified parts of Runestone Server (version of 5.1.2) to use at University of São Paulo's Institute of Mathematics and Statistics.
+This code contains the modified parts of Runestone Server (version 5.1.2) to use at University of São Paulo's Institute of Mathematics and Statistics.
 
 The views were modified to create a custom layout for the University and translate some strings to portuguese. 
 

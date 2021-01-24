@@ -1,0 +1,122 @@
+{{ base_static_url = get_course_url('_static') }}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.messagestore.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.fallbacks.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.language.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.parser.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.emitter.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@4.0.0-rc.2/build/vega.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@2.5.0/build/vega-lite.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@3.14.0/build/vega-embed.js"></script>
+<script src="{{=base_static_url}}/runestone.js?v={{=settings.components_version}}" type="text/javascript"></script>
+<script type="text/javascript" src="{{=base_static_url}}/pytutor-embed.bundle.js?v={{=settings.components_version}}"></script>
+<script type="text/javascript" src="{{=base_static_url}}/jquery.idle-timer.js"></script>
+<script src="{{=URL('static', 'js/jquery.datetimepicker.full.min.js')}}"></script>
+<script src="{{=base_static_url}}/sql-wasm.js?v={{=settings.components_version}}" type="text/javascript"></script>
+<script type="text/javascript" src="/{{=request.application}}/static/js/superfish.js"></script>
+<script type="text/javascript" src="{{=base_static_url}}/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="{{=base_static_url}}/jquery-ui-1.10.3.custom.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/handsontable@7.2.2/dist/handsontable.full.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/handsontable@7.2.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+
+<link rel="stylesheet" type="text/css" href="{{=URL('static', 'jquery.datetimepicker.min.css')}}" />
+<link href="{{=base_static_url}}/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="{{=base_static_url}}/pygments.css" type="text/css"/>
+<link rel="stylesheet" href="{{=base_static_url}}/runestone-custom-sphinx-bootstrap.css?v={{=settings.components_version}}" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="{{=base_static_url}}/accessibility.css?v=DB047029"/>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['\\(','\\)']]
+        },
+        asciimath2jax: {
+            ignoreClass: ".*",
+            processClass: "has_am"
+        },
+        jax: ["input/AsciiMath"],
+        extensions: ["asciimath2jax.js"],
+        TeX: {
+            extensions: ["extpfeil.js", "autobold.js", "https://pretextbook.org/js/lib/mathjaxknowl.js", "AMScd.js", ],
+            // scrolling to fragment identifiers is controlled by other Javascript
+            positionToHash: false,
+            equationNumbers: { autoNumber: "none", useLabelIds: true, },
+            TagSide: "right",
+            TagIndent: ".8em",
+    Macros: {    },
+        },
+        // HTML-CSS output Jax to be dropped for MathJax 3.0
+        "HTML-CSS": {
+            scale: 88,
+            mtextFontInherit: true,
+        },
+        CommonHTML: {
+            scale: 88,
+            mtextFontInherit: true,
+        },
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<style>
+    .completed {
+        list-style-image: url('{{=base_static_url}}/completed.png');
+    }
+    .started {
+        list-style-type: circle;
+        list-style-image: url('{{=base_static_url}}/active.png');
+    }
+    .gradeablerow:hover {
+        background-color: #cccccc;
+    }
+    .gradeablerow {
+        color: blue;
+        text-decoration: underline;
+    }
+    .clipcopy:active {
+	    background-color: lightblue;
+    }
+    .graphwrapper {
+        display: grid;
+        grid-template-columns: 50% 50%;
+    }
+
+</style>
+
+
+<script>
+    $('#hideId').css('display','none');
+</script>
+
+<script type="text/javascript">
+  if(typeof eBookConfig === "undefined") {
+      eBookConfig = {};
+  }
+  eBookConfig.host = '';
+  eBookConfig.app = eBookConfig.host+'/{{=request.application}}';
+  eBookConfig.ajaxURL = eBookConfig.app+'/ajax/';
+  eBookConfig.course = "{{=course['course_name']}}";
+  eBookConfig.logLevel = 10;
+  eBookConfig.loginRequired = true;
+  eBookConfig.python3 = true ? "{{=course['python3']}}" == "True" : false;
+  {{ if 'auth' in globals() and auth.user: }}
+  eBookConfig.username = "{{=auth.user.username}}"
+  eBookConfig.email = "{{=auth.user.email}}"
+    {{ if 'is_instructor' in globals(): }}
+    eBookConfig.isInstructor = {{ =is_instructor }};
+    {{pass}}
+  {{pass}}
+  eBookConfig.isLoggedIn = true ? "{{='auth' in globals()}}" == "True" : false;
+  eBookConfig.useRunestoneServices = true;
+  eBookConfig.basecourse = "{{=course['base_course']}}";
+  eBookConfig.gradeRecordingUrl = `${eBookConfig.app}/assignments/record_grade`;
+</script>
+
